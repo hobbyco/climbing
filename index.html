@@ -79,7 +79,7 @@
     <div class="container mx-auto p-4 md:p-8">
         <header class="text-center mb-8 pt-4">
             <h1 class="text-4xl font-bold text-gray-900">🧗 원정러를 위한 클라이밍 암장 검색기</h1>
-            <p class="text-lg text-gray-600 mt-2">가고 싶은 클라이밍 암장을 찾아보세요!</p>
+            <p class="text-lg text-gray-600 mt-2">이번 주 원정은 어디로?? 세팅과 할인정보까지! </p>
         </header>
 
         <!-- Filter Section -->
@@ -109,7 +109,7 @@
                 <select id="priceFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"><option value="">모든 가격(일권)</option></select>
                 <div class="flex items-center justify-start">
                     <input type="checkbox" id="discountGymFilter" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    <label for="discountGymFilter" class="ml-2 text-sm font-medium text-gray-700">주간 할인 </label>
+                    <label for="discountGymFilter" class="ml-2 text-sm font-medium text-gray-700"> 주간 및 기타 할인 </label>
                 </div>
                 <select id="boardFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">모든 보드 종류</option>
@@ -122,8 +122,7 @@
             </div>
         </div>
 
-        <!-- Search Results Count -->
-        <div id="resultsCountContainer" class="text-lg text-center mb-6 hidden">
+        <div id="resultsCountContainer" class="text-lg text-center mb-6">
             <p>
                 <span class="font-bold text-blue-600" id="resultsCount">0</span>개의 암장을 찾았어요!
             </p>
@@ -161,15 +160,13 @@
             </div>
         </div>
 
-        <!-- Footer Notice -->
-        <div id="footerNotice" class="mt-8 p-4 bg-gray-200 rounded-lg text-sm text-gray-600 hidden">
+        <div id="footerNotice" class="mt-12 p-4 bg-gray-200 rounded-lg text-sm text-gray-600">
             <p class="font-bold">※ 참고사항</p>
-            <p>암장 사정에 따라 암장 정보가 달라질 수 있으니, 반드시 방문전 해당 암장 홈페이지/인스타그램을 참고해 주세요.</p>
-            <p class="mt-2">특히 아래 내용에 따라, 검색이 잘 안될 수 있는 점 유의해 주십시요.</p>
+            <p>암장 사정에 따라 암장 정보가 달라질 수 있으니, 반드시 방문전 해당 암장 홈페이지/인스타그램을 참고해 주세요.<br> 월권 보다는 일권 위주의 정보를 담았으며, 할인 정보 역시 개인에 맞춰져 있습니다 (크루 할인 등은 적용하지 않음) <br>특히 아래 내용에 따라, 검색이 잘 안될 수 있는 점 유의해 주십시요.</p>
             <ul class="list-disc list-inside mt-1 space-y-1">
-                <li>오픈시간이 평일에도 요일마다 다른 암장 / 주말 및 공휴일 영업 시간이 다른 암장</li>
-                <li>공휴일이 평일일 경우 (세팅 주기가 달라지는 경우가 많음)</li>
-                <li>격주 세팅 등 매주 세팅이 아닌 경우</li>
+                <li>오픈시간이 평일에도 요일마다 다른 암장, 주말과 공휴일 영업 시간이 다른 암장이 있을 수 있습니다. </li>
+                <li>공휴일이 평일일 경우 (세팅 주기가 달라지는 경우가 많음) </li>
+                <li>격주 세팅 등 매주 세팅이 아닌 경우 </li>
                 <li>기타 등등</li>
             </ul>
         </div>
@@ -214,7 +211,7 @@
                 const csvText = await response.text();
                 allGyms = parseCSV(csvText);
                 populateFilters();
-                filterGyms();
+                filterGyms(); 
             } catch (error) {
                 console.error('Error fetching data:', error);
                 gymList.innerHTML = `<p class="text-center text-red-500 col-span-full">데이터 로딩 실패. URL을 확인하거나 나중에 다시 시도하세요.</p>`;
@@ -259,16 +256,16 @@
             }).filter(entry => entry && entry.일련번호 && !isNaN(Number(entry.일련번호)));
         }
         
-        // Custom sort function
-        function customSort(a, b) {
-            const isANone = a === '없음';
-            const isBNone = b === '없음';
-            if (isANone && !isBNone) return 1;
-            if (!isANone && isBNone) return -1;
-            if (!isNaN(Number(a)) && !isNaN(Number(b))) {
-                return Number(a) - Number(b);
+        // Custom sort for Sido
+        function sidoSort(a, b) {
+            const order = { '서울': 1, '경기도': 2 };
+            const aOrder = order[a] || 3;
+            const bOrder = order[b] || 3;
+
+            if (aOrder !== bOrder) {
+                return aOrder - bOrder;
             }
-            return String(a).localeCompare(String(b));
+            return a.localeCompare(b, 'ko-KR');
         }
 
         // Populate dropdowns
@@ -293,17 +290,26 @@
             const selectedSido = sidoFilter.value;
             let regions;
             if (selectedSido) {
-                regions = [...new Set(allGyms.filter(g => g.시도 && g.시도.startsWith(selectedSido)).map(g => g.권역권).filter(Boolean))].sort(customSort);
+                regions = [...new Set(allGyms.filter(g => g.시도 && g.시도.startsWith(selectedSido)).map(g => g.권역권).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'ko-KR'));
             } else {
-                regions = [...new Set(allGyms.map(g => g.권역권).filter(Boolean))].sort(customSort);
+                const sortedGymsBySido = [...allGyms].sort((a, b) => {
+                    const order = { '서울': 1, '경기도': 2 };
+                    const aOrder = order[a.시도] || 3;
+                    const bOrder = order[b.시도] || 3;
+                    if (aOrder !== bOrder) {
+                        return aOrder - bOrder;
+                    }
+                    return a.권역권.localeCompare(b.권역권, 'ko-KR');
+                });
+                regions = [...new Map(sortedGymsBySido.filter(g => g.권역권).map(g => [g.권역권, g.권역권])).keys()];
             }
             populateDropdown(regionFilter, regions, '모든 권역');
         }
 
         // Populate all filters
         function populateFilters() {
-            const sidos = [...new Set(allGyms.map(g => g.시도).filter(Boolean))].sort(customSort);
-            const prices = [...new Set(allGyms.map(g => g.일권가격).filter(Boolean))].sort(customSort);
+            const sidos = [...new Set(allGyms.map(g => g.시도).filter(Boolean))].sort(sidoSort);
+            const prices = [...new Set(allGyms.map(g => g.일권가격).filter(Boolean))].sort((a, b) => Number(a) - Number(b));
             const settingDates = [...new Set(allGyms.map(g => g.세팅일).filter(Boolean))].sort((a,b) => new Date(b) - new Date(a));
 
             populateDropdown(sidoFilter, sidos, '모든 시/도');
@@ -316,19 +322,9 @@
         function displayGyms(gyms) {
             gymList.innerHTML = '';
             resultsCount.textContent = gyms.length;
+            noResults.style.display = gyms.length === 0 ? 'block' : 'none';
 
             const sortedGyms = [...gyms].sort((a, b) => a.암장명.localeCompare(b.암장명, 'ko-KR'));
-
-            if (loading.style.display === 'none') {
-                footerNotice.classList.remove('hidden');
-                if (gyms.length > 0 || allGyms.length > 0) {
-                    resultsCountContainer.classList.remove('hidden');
-                    noResults.style.display = gyms.length === 0 ? 'block' : 'none';
-                } else {
-                    resultsCountContainer.classList.add('hidden');
-                    noResults.style.display = 'block';
-                }
-            }
 
             sortedGyms.forEach(gym => {
                 const card = document.createElement('div');
@@ -480,7 +476,7 @@
         
         shareAppBtn.addEventListener('click', () => {
             const url = 'https://hobbyco.github.io/climbing/index.html';
-            const message = 'url 주소 복사 완료. DM, 카톡 등으로 주소를 공유해 주세요';
+            const message = 'URL 주소 복사 완료. DM, 카톡 등으로 주소를 공유해 주세요';
             copyToClipboard(url, message);
         });
         
