@@ -73,8 +73,12 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
 
+    <a href="https://hobbyco.github.io/pds_root/index.html" target="_blank" rel="noopener noreferrer" class="fixed top-4 right-4 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-2 px-3 rounded-md transition duration-300 z-20 text-center">
+        개발자 홈페이지<br>바로가기
+    </a>
+
     <div class="container mx-auto p-4 md:p-8">
-        <header class="text-center mb-8">
+        <header class="text-center mb-8 pt-4">
             <h1 class="text-4xl font-bold text-gray-900">🧗 원정러를 위한 클라이밍 암장 검색기</h1>
             <p class="text-lg text-gray-600 mt-2">가고 싶은 클라이밍 암장을 찾아보세요!</p>
         </header>
@@ -141,13 +145,11 @@
             <p class="text-gray-500 mt-1">다른 검색 조건을 시도해보세요.</p>
         </div>
         
-        <!-- Link to Google Sheet and Feedback Form -->
         <div class="text-center my-8 space-y-4">
             <a href="https://docs.google.com/spreadsheets/d/1pL_lw6SF0f_UB90TlPmlBaNgX01_kayBM6uynCrXGS4/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300">
                 암장 정보 추가 및 수정 바로가기
             </a>
             <div>
-                <!-- [MODIFIED] Link style changed -->
                 <a href="https://naver.me/5IiVumEi" target="_blank" rel="noopener noreferrer" class="text-gray-500 underline hover:text-gray-700 font-semibold">
                     암장 검색기 피드백 보내기 (네이버 폼)
                 </a>
@@ -244,7 +246,7 @@
                     entry[header] = value.replace(/""/g, '"');
                 });
                 return entry;
-            }).filter(entry => entry && entry.암장명);
+            }).filter(entry => entry && entry.일련번호 && !isNaN(Number(entry.일련번호)));
         }
         
         // Custom sort function
@@ -300,10 +302,12 @@
             populateDropdown(settingDateFilter, settingDates, '모든 세팅일');
         }
 
-        // Display gyms and update count
+        // [MODIFIED] Display gyms and update count
         function displayGyms(gyms) {
             gymList.innerHTML = '';
             resultsCount.textContent = gyms.length;
+
+            const sortedGyms = [...gyms].sort((a, b) => a.암장명.localeCompare(b.암장명, 'ko-KR'));
 
             if (loading.style.display === 'none') {
                 footerNotice.classList.remove('hidden');
@@ -316,7 +320,7 @@
                 }
             }
 
-            gyms.forEach(gym => {
+            sortedGyms.forEach(gym => {
                 const card = document.createElement('div');
                 card.className = 'card bg-white rounded-lg shadow-md p-4';
                 
@@ -335,10 +339,12 @@
                 const discountConditionText = (gym.할인조건 && gym.할인조건.trim() !== '' && gym.할인조건.trim() !== '없음') ? gym.할인조건 : '정보 없음';
                 const boardText = (gym.보드류 && gym.보드류.trim() !== '' && gym.보드류.trim() !== '없음') ? gym.보드류 : '보드류 없음';
                 const remarksText = (gym.비고사항 && gym.비고사항.trim() !== '') ? gym.비고사항 : '정보 없음';
+                const openHoursText = `${gym.평일오픈시간 || '정보 없음'} / ${gym.주말오픈시간 || '정보 없음'}`;
 
                 card.innerHTML = `
                     <h3 class="text-xl font-bold mb-2">${gym.암장명}</h3>
-                    <p class="text-gray-600 mb-1 text-sm">📍 ${gym.시도} ${gym.권역권 || ''}</p>
+                    <p class="text-gray-600 mb-1 text-sm">📍 ${gym.시도} ${gym.시군구 || ''}</p>
+                    <p class="text-gray-600 mb-1 text-sm">⏰ 오픈시간 (평일/주말) : ${openHoursText}</p>
                     <p class="text-gray-600 mb-1 text-sm">🗓️ 세팅일: ${gym.세팅일 || '정보 없음'}</p>
                     <p class="text-gray-600 mb-1 text-sm">💰 일권 가격: ${priceText}</p>
                     <p class="text-gray-600 mb-1 text-sm">📋 할인조건: ${discountConditionText}</p>
