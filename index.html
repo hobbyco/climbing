@@ -140,6 +140,19 @@
             <p class="text-xl font-semibold text-gray-700">😥 검색 결과가 없습니다.</p>
             <p class="text-gray-500 mt-1">다른 검색 조건을 시도해보세요.</p>
         </div>
+        
+        <!-- Link to Google Sheet and Feedback Form -->
+        <div class="text-center my-8 space-y-4">
+            <a href="https://docs.google.com/spreadsheets/d/1pL_lw6SF0f_UB90TlPmlBaNgX01_kayBM6uynCrXGS4/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300">
+                암장 정보 추가 및 수정 바로가기
+            </a>
+            <div>
+                <!-- [MODIFIED] Link style changed -->
+                <a href="https://naver.me/5IiVumEi" target="_blank" rel="noopener noreferrer" class="text-gray-500 underline hover:text-gray-700 font-semibold">
+                    암장 검색기 피드백 보내기 (네이버 폼)
+                </a>
+            </div>
+        </div>
 
         <!-- Footer Notice -->
         <div id="footerNotice" class="mt-8 p-4 bg-gray-200 rounded-lg text-sm text-gray-600 hidden">
@@ -329,7 +342,7 @@
                     <p class="text-gray-600 mb-1 text-sm">🗓️ 세팅일: ${gym.세팅일 || '정보 없음'}</p>
                     <p class="text-gray-600 mb-1 text-sm">💰 일권 가격: ${priceText}</p>
                     <p class="text-gray-600 mb-1 text-sm">📋 할인조건: ${discountConditionText}</p>
-                    <p class="text-gray-600 mb-1 text-sm">� 보드류: ${boardText}</p>
+                    <p class="text-gray-600 mb-1 text-sm">🧱 보드류: ${boardText}</p>
                     <p class="text-gray-600 text-sm">📝 비고: ${remarksText}</p>
                 `;
                 gymList.appendChild(card);
@@ -443,4 +456,3 @@
 
 </body>
 </html>
-�
