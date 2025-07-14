@@ -13,7 +13,7 @@
     <meta property="og:url" content="https://storage.googleapis.com/generativeai-downloads/static-sites/climbing-gym-finder-final/index.html">
     <meta property="og:image" content="https://storage.googleapis.com/generativeai-downloads/static-sites/climbing-gym-finder-final/og-image.jpg">
 
-    <!-- [MODIFIED] Google Analytics -->
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KFCTS5DZ6V"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -153,20 +153,9 @@
                 <li>기타 등등</li>
             </ul>
         </div>
-        
-        <div class="text-center mt-8">
-            <p class="text-sm text-gray-500">
-                (<span id="todayVisitorCount" class="font-bold">0</span> / <span id="totalVisitorCount" class="font-bold">0</span>)
-            </p>
-        </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, runTransaction, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
+    <script>
         // Google Sheets CSV URL
         const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQdN7on7-9sdHseYE5NCqz8hBh9G7qzyhFgvM4tPuzUile-HKjDm1PFLqxJFJiH-SEz5zV4fqGpzXmV/pub?gid=0&single=true&output=csv';
 
@@ -188,66 +177,8 @@
         const resultsCountContainer = document.getElementById('resultsCountContainer');
         const resultsCount = document.getElementById('resultsCount');
         const footerNotice = document.getElementById('footerNotice');
-        const todayVisitorCountSpan = document.getElementById('todayVisitorCount');
-        const totalVisitorCountSpan = document.getElementById('totalVisitorCount');
 
         let allGyms = [];
-        
-        // Firebase Visitor Counter Logic
-        async function updateVisitorCount() {
-            try {
-                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'climbing-gym-finder-ko';
-
-                const app = initializeApp(firebaseConfig);
-                const db = getFirestore(app);
-                const auth = getAuth(app);
-                setLogLevel('debug');
-
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-                const totalCounterRef = doc(db, `artifacts/${appId}/public/data/page_counters`, "totalCounter");
-                const dailyCounterRef = doc(db, `artifacts/${appId}/public/data/daily_counters`, today);
-
-                // Transaction for total counter
-                const newTotalCount = await runTransaction(db, async (transaction) => {
-                    const counterDoc = await transaction.get(totalCounterRef);
-                    if (!counterDoc.exists()) {
-                        transaction.set(totalCounterRef, { count: 1 });
-                        return 1;
-                    }
-                    const newCount = counterDoc.data().count + 1;
-                    transaction.update(totalCounterRef, { count: newCount });
-                    return newCount;
-                });
-                totalVisitorCountSpan.textContent = newTotalCount.toLocaleString();
-                
-                // Transaction for daily counter
-                const newDailyCount = await runTransaction(db, async (transaction) => {
-                    const counterDoc = await transaction.get(dailyCounterRef);
-                    if (!counterDoc.exists()) {
-                        transaction.set(dailyCounterRef, { count: 1 });
-                        return 1;
-                    }
-                    const newCount = counterDoc.data().count + 1;
-                    transaction.update(dailyCounterRef, { count: newCount });
-                    return newCount;
-                });
-                todayVisitorCountSpan.textContent = newDailyCount.toLocaleString();
-
-
-            } catch (e) {
-                console.error("Error updating visitor count:", e);
-                todayVisitorCountSpan.textContent = "N/A";
-                totalVisitorCountSpan.textContent = "N/A";
-            }
-        }
-
 
         // Fetch data from Google Sheets
         async function fetchData() {
@@ -376,30 +307,30 @@
                 const card = document.createElement('div');
                 card.className = 'card bg-white rounded-lg shadow-md p-4';
                 
-                const priceText = gym.일권가격 && !isNaN(Number(gym.일권가격)) ? `${Number(gym.일권가격).toLocaleString('ko-KR')}원` : '정보 없음';
+                let priceText = gym.일권가격 && !isNaN(Number(gym.일권가격)) ? `${Number(gym.일권가격).toLocaleString('ko-KR')}원` : '정보 없음';
                 
-                let discountPriceText;
                 if (gym.할인가 && gym.할인가.trim() !== '' && gym.할인가.trim() !== '없음') {
+                    let formattedDiscountPrice;
                     if (!isNaN(Number(gym.할인가))) {
-                        discountPriceText = `${Number(gym.할인가).toLocaleString('ko-KR')}원`;
+                        formattedDiscountPrice = `${Number(gym.할인가).toLocaleString('ko-KR')}원`;
                     } else {
-                        discountPriceText = gym.할인가;
+                        formattedDiscountPrice = gym.할인가;
                     }
-                } else {
-                    discountPriceText = '정보 없음';
+                    priceText += ` (할인가 : ${formattedDiscountPrice})`;
                 }
 
-                const discountConditionText = gym.할인조건 && gym.할인조건.trim() !== '' && gym.할인조건.trim() !== '없음' ? gym.할인조건 : '정보 없음';
-                const boardText = gym.보드류 && gym.보드류.trim() !== '' && gym.보드류.trim() !== '없음' ? gym.보드류 : '보드류 없음';
+                const discountConditionText = (gym.할인조건 && gym.할인조건.trim() !== '' && gym.할인조건.trim() !== '없음') ? gym.할인조건 : '정보 없음';
+                const boardText = (gym.보드류 && gym.보드류.trim() !== '' && gym.보드류.trim() !== '없음') ? gym.보드류 : '보드류 없음';
+                const remarksText = (gym.비고사항 && gym.비고사항.trim() !== '') ? gym.비고사항 : '정보 없음';
 
                 card.innerHTML = `
                     <h3 class="text-xl font-bold mb-2">${gym.암장명}</h3>
                     <p class="text-gray-600 mb-1 text-sm">📍 ${gym.시도} ${gym.권역권 || ''}</p>
                     <p class="text-gray-600 mb-1 text-sm">🗓️ 세팅일: ${gym.세팅일 || '정보 없음'}</p>
-                    <p class="text-gray-600 mb-1 text-sm">🧗 보드류: ${boardText}</p>
                     <p class="text-gray-600 mb-1 text-sm">💰 일권 가격: ${priceText}</p>
-                    <p class="text-gray-600 mb-1 text-sm">💸 할인가: ${discountPriceText}</p>
-                    <p class="text-gray-600 text-sm">📋 할인조건: ${discountConditionText}</p>
+                    <p class="text-gray-600 mb-1 text-sm">📋 할인조건: ${discountConditionText}</p>
+                    <p class="text-gray-600 mb-1 text-sm">� 보드류: ${boardText}</p>
+                    <p class="text-gray-600 text-sm">📝 비고: ${remarksText}</p>
                 `;
                 gymList.appendChild(card);
             });
@@ -508,8 +439,8 @@
 
         // Initial data load
         fetchData();
-        updateVisitorCount();
     </script>
 
 </body>
 </html>
+�
