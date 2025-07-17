@@ -69,9 +69,6 @@
             cursor: not-allowed;
             color: #9ca3af;
         }
-        #shareToast {
-            transition: opacity 0.5s, visibility 0.5s;
-        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -149,17 +146,45 @@
             </button>
             <a href="https://docs.google.com/spreadsheets/d/1pL_lw6SF0f_UB90TlPmlBaNgX01_kayBM6uynCrXGS4/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300">
                 암장 정보 추가 및 수정 바로가기
-            </a>      
-            <div>
-                <a href="https://naver.me/5IiVumEi" target="_blank" rel="noopener noreferrer" class="text-gray-500 underline hover:text-gray-700 font-semibold">
-                    암장 검색기 피드백 보내기 (네이버 폼)
-                </a>
-                <br>
-                <a href="https://hobbyco.github.io/pds_root/index.html" target="_blank" rel="noopener noreferrer" class="text-sm text-gray-500 hover:text-gray-700 underline">
-                    개발자 홈페이지 바로가기
-                </a>
-            </div>
+            </a>
         </div>
+
+ <!-- 푸터가 삽입될 위치 -->
+    <div id="footer-placeholder"></div>
+
+    <script>
+        // 공통 푸터 삽입
+        // mini_games 폴더 안에 있으므로, 상위 폴더의 footer.html을 참조하기 위해 ../ 를 사용합니다.
+        fetch('/footer.html')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('네트워크 응답이 올바르지 않습니다: ' + response.statusText);
+                }
+                return response.text();
+            })
+            .then(data => {
+                const placeholder = document.getElementById('footer-placeholder');
+                if (placeholder) {
+                    placeholder.innerHTML = data;
+                    // 푸터에 있는 Lucide 아이콘을 렌더링하기 위해 함수를 다시 호출합니다.
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('푸터를 불러오는 데 문제가 발생했습니다:', error);
+                const placeholder = document.getElementById('footer-placeholder');
+                if (placeholder) {
+                    placeholder.innerHTML = '<p class="text-center text-red-500 py-10">푸터를 불러오지 못했습니다. 로컬 환경에서 테스트하는 경우 브라우저 보안 정책(CORS) 때문일 수 있습니다.</p>';
+                }
+            });
+
+        // 페이지의 나머지 Lucide 아이콘을 렌더링합니다.
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>    
 
         <div id="footerNotice" class="mt-12 p-4 bg-gray-200 rounded-lg text-sm text-gray-600">
             <p class="font-bold">※ 참고사항</p>
@@ -354,7 +379,7 @@
                         <p class="text-xs md:text-sm text-gray-600 mb-1">📍 ${gym.시도} ${gym.시군구 || ''}</p>
                         <p class="text-xs md:text-sm text-gray-600 mb-1">⏰ 오픈시간 (평일/주말) : ${openHoursText}</p>
                         <p class="text-xs md:text-sm text-gray-600 mb-1">🗓️ 세팅일: ${gym.세팅일 || '정보 없음'}</p>
-                        <p class="text-xs md:text-sm text-gray-600 mb-1">💰 일권 가격: ${priceText}</p>
+                        <p class="text-xs md:text-sm text-gray-600 mb-1">� 일권 가격: ${priceText}</p>
                         <p class="text-xs md:text-sm text-gray-600 mb-1">📋 할인조건: ${discountConditionText}</p>
                         <p class="text-xs md:text-sm text-gray-600 mb-1">🧱 보드류: ${boardText}</p>
                         <p class="text-xs md:text-sm text-gray-600">📝 비고: ${remarksText}</p>
@@ -493,3 +518,4 @@
 
 </body>
 </html>
+�
