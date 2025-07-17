@@ -24,6 +24,8 @@
     <!-- End Google Analytics -->
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- [NEW] Lucide Icons Library -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -139,7 +141,7 @@
             <p class="text-xl font-semibold text-gray-700">😥 검색 결과가 없습니다.</p>
             <p class="text-gray-500 mt-1">다른 검색 조건을 시도해보세요.</p>
         </div>
-        
+
         <div class="text-center my-8 space-y-4">
             <button id="shareAppBtn" class="inline-block bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300">
                 암장 검색기 공유하기
@@ -149,42 +151,33 @@
             </a>
         </div>
 
- <!-- 푸터가 삽입될 위치 -->
-    <div id="footer-placeholder"></div>
-
-    <script>
-        // 공통 푸터 삽입
-        // mini_games 폴더 안에 있으므로, 상위 폴더의 footer.html을 참조하기 위해 ../ 를 사용합니다.
-        fetch('/footer.html')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('네트워크 응답이 올바르지 않습니다: ' + response.statusText);
-                }
-                return response.text();
-            })
-            .then(data => {
-                const placeholder = document.getElementById('footer-placeholder');
-                if (placeholder) {
-                    placeholder.innerHTML = data;
-                    // 푸터에 있는 Lucide 아이콘을 렌더링하기 위해 함수를 다시 호출합니다.
-                    if (typeof lucide !== 'undefined') {
-                        lucide.createIcons();
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('푸터를 불러오는 데 문제가 발생했습니다:', error);
-                const placeholder = document.getElementById('footer-placeholder');
-                if (placeholder) {
-                    placeholder.innerHTML = '<p class="text-center text-red-500 py-10">푸터를 불러오지 못했습니다. 로컬 환경에서 테스트하는 경우 브라우저 보안 정책(CORS) 때문일 수 있습니다.</p>';
-                }
-            });
-
-        // 페이지의 나머지 Lucide 아이콘을 렌더링합니다.
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    </script>    
+        
+        <!-- [MODIFIED] Footer Section -->
+        <div id="footer-placeholder" class="text-center my-8">
+             <!-- 소셜 미디어 아이콘 링크 -->
+            <div class="flex justify-center gap-6 mb-6">
+                <a href="https://www.instagram.com/p_dong_soo" target="_blank" rel="noopener noreferrer" aria-label="인스타그램 바로가기" class="text-gray-400 hover:text-pink-500 transition-colors">
+                    <i data-lucide="instagram" class="w-7 h-7"></i>
+                </a>
+                <a href="https://www.facebook.com/pdongsoo" target="_blank" rel="noopener noreferrer" aria-label="페이스북 바로가기" class="text-gray-400 hover:text-blue-500 transition-colors">
+                    <i data-lucide="facebook" class="w-7 h-7"></i>
+                </a>
+                <a href="https://blog.naver.com/pdongsoo" target="_blank" rel="noopener noreferrer" aria-label="블로그 바로가기">
+                    <svg class="w-7 h-7 text-gray-400 hover:text-green-500 transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16.23 18H7.77L2 18v-9.3c0-1.04.86-1.9 1.9-1.9h16.2c1.04 0 1.9.86 1.9 1.9V18h-5.77zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                    </svg>
+                </a>
+            </div>
+            <!-- 네이버폼 피드백 링크 -->
+            <a href="https://naver.me/FPUXJiqg" target="_blank" rel="noopener noreferrer" class="text-sm text-gray-500 underline hover:text-gray-700 transition-colors">
+                네이버폼으로 피드백 보내기
+            </a>
+            <br>
+            <!-- 개발자 홈페이지 링크 -->
+            <a href="https://hobbyco.github.io/pds_root/index.html" class="text-sm text-gray-500 underline hover:text-gray-700 transition-colors">
+                더 많은 프로그램 보러가기
+            </a>
+        </div>
 
         <div id="footerNotice" class="mt-12 p-4 bg-gray-200 rounded-lg text-sm text-gray-600">
             <p class="font-bold">※ 참고사항</p>
@@ -198,10 +191,6 @@
         </div>
     </div>
     
-    <div id="shareToast" class="fixed bottom-10 right-10 bg-gray-800 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 invisible">
-        URL 주소 복사 완료. DM, 카톡 등으로 주소를 공유해 주세요
-    </div>
-
     <script>
         // Google Sheets CSV URL
         const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQdN7on7-9sdHseYE5NCqz8hBh9G7qzyhFgvM4tPuzUile-HKjDm1PFLqxJFJiH-SEz5zV4fqGpzXmV/pub?gid=0&single=true&output=csv';
@@ -221,8 +210,6 @@
         const visitDayFilter = document.getElementById('visitDayFilter');
         const excludeSettingDayFilter = document.getElementById('excludeSettingDayFilter');
         const resetFilters = document.getElementById('resetFilters');
-        const shareAppBtn = document.getElementById('shareAppBtn');
-        const shareToast = document.getElementById('shareToast');
         const resultsCountContainer = document.getElementById('resultsCountContainer');
         const resultsCount = document.getElementById('resultsCount');
         const footerNotice = document.getElementById('footerNotice');
@@ -379,7 +366,7 @@
                         <p class="text-xs md:text-sm text-gray-600 mb-1">📍 ${gym.시도} ${gym.시군구 || ''}</p>
                         <p class="text-xs md:text-sm text-gray-600 mb-1">⏰ 오픈시간 (평일/주말) : ${openHoursText}</p>
                         <p class="text-xs md:text-sm text-gray-600 mb-1">🗓️ 세팅일: ${gym.세팅일 || '정보 없음'}</p>
-                        <p class="text-xs md:text-sm text-gray-600 mb-1">� 일권 가격: ${priceText}</p>
+                        <p class="text-xs md:text-sm text-gray-600 mb-1">💰 일권 가격: ${priceText}</p>
                         <p class="text-xs md:text-sm text-gray-600 mb-1">📋 할인조건: ${discountConditionText}</p>
                         <p class="text-xs md:text-sm text-gray-600 mb-1">🧱 보드류: ${boardText}</p>
                         <p class="text-xs md:text-sm text-gray-600">📝 비고: ${remarksText}</p>
@@ -466,22 +453,6 @@
             filterGyms();
         }
 
-        // Share function
-        function copyToClipboard(text, message) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-
-            shareToast.textContent = message;
-            shareToast.classList.remove('invisible', 'opacity-0');
-            setTimeout(() => {
-                shareToast.classList.add('invisible', 'opacity-0');
-            }, 2000);
-        }
-
         // Add event listeners
         visitDayFilter.addEventListener('change', (e) => {
             const selectedDay = e.target.value;
@@ -500,12 +471,6 @@
             filterGyms();
         });
         
-        shareAppBtn.addEventListener('click', () => {
-            const url = 'https://hobbyco.github.io/climbing/index.html';
-            const message = 'URL 주소 복사 완료. DM, 카톡 등으로 주소를 공유해 주세요';
-            copyToClipboard(url, message);
-        });
-        
         const otherFilters = document.querySelectorAll('#nameFilter, #regionFilter, #priceFilter, #discountGymFilter, #before11Filter, #boardFilter, #settingDateFilter, #excludeSettingDayFilter');
         otherFilters.forEach(el => el.addEventListener('change', filterGyms));
         
@@ -514,8 +479,10 @@
 
         // Initial data load
         fetchData();
+        
+        // [NEW] Render Lucide Icons
+        lucide.createIcons();
     </script>
 
 </body>
 </html>
-�
